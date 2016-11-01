@@ -1,0 +1,18 @@
+Status: 200 OK
+X-Xss-Protection: 1; mode=block
+Content-Security-Policy: default-src 'self' https:; connect-src 'self' https: ws://localhost.airbnb.com:8888 *.mapbox.com *.inspectlet.com wss://ws.inspectlet.com http:; font-src 'self' data: *.muscache.com fonts.gstatic.com use.typekit.net; frame-src * *.google.com; img-src 'self' https: *.mapbox.com *.inspectlet.com *.gstatic.com http: data:; media-src 'self' https: blob:; object-src 'self' https:; script-src 'sha256-2S1zmL0hHGfsnw+rP+m+rBKOma7sejqhykg8DdWFKfU=' 'self' https: 'unsafe-eval' 'unsafe-inline' *.mapbox.com *.inspectlet.com *.google.com *.gstatic.com http:; style-src 'self' https: 'unsafe-inline' *.mapbox.com http:; report-uri /tracking/csp?action=show&controller=rooms&req_uuid=604b7ff6-6734-4439-b354-33dfe5abf265&version=59711e925fab67aaf3f37daa9324dafa93f5d882;
+X-Content-Type-Options: nosniff
+Content-Encoding: gzip
+Set-Cookie: bev=1477521326_CeJFxqPBOEJua%2F2q; domain=.airbnb.co.uk; path=/; expires=Fri, 26-Oct-2018 22:36:06 GMT; secure
+Set-Cookie: p1_new=treatment; expires=Sun, 25-Dec-2016 22:36:07 GMT; domain=.airbnb.co.uk
+Set-Cookie: p1_new_eligible=63; expires=Sun, 25-Dec-2016 22:36:07 GMT; domain=.airbnb.co.uk
+Set-Cookie: p1_hero=treatment; expires=Sun, 25-Dec-2016 22:36:07 GMT; domain=.airbnb.co.uk
+Strict-Transport-Security: max-age=10886400; includeSubdomains
+Vary: Accept-Encoding
+Server: nginx/1.7.12
+Etag: W/"3cc3e6f37ee2288aec60bf50749e09e5"
+X-Ua-Compatible: IE=Edge,chrome=1
+Cache-Control: public, max-age=1796
+Date: Wed, 26 Oct 2016 22:36:07 GMT
+X-Frame-Options: SAMEORIGIN
+Content-Type: text/html; charset=utf-8

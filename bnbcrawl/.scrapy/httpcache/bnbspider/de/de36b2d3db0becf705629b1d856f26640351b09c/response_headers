@@ -1,0 +1,16 @@
+Status: 200 OK
+X-Xss-Protection: 1; mode=block
+Content-Security-Policy: default-src 'self' https:; connect-src 'self' https: ws://localhost.airbnb.com:8888 *.mapbox.com *.inspectlet.com wss://ws.inspectlet.com http:; font-src 'self' data: *.muscache.com fonts.gstatic.com use.typekit.net; frame-src *; img-src 'self' https: *.mapbox.com *.inspectlet.com http: data:; media-src 'self' https:; object-src 'self' https:; script-src 'sha256-2S1zmL0hHGfsnw+rP+m+rBKOma7sejqhykg8DdWFKfU=' 'self' https: 'unsafe-eval' 'unsafe-inline' *.mapbox.com *.inspectlet.com http:; style-src 'self' https: 'unsafe-inline' *.mapbox.com http:; report-uri /tracking/csp?action=index&controller=search&req_uuid=f2fa6885-690e-4f8e-bf69-eeca8daf4ffa&version=59711e925fab67aaf3f37daa9324dafa93f5d882;
+X-Content-Type-Options: nosniff
+Content-Encoding: gzip
+Set-Cookie: bev=1477521314_wSvp4X%2BRTkElqkUw; domain=.airbnb.co.uk; path=/; expires=Fri, 26-Oct-2018 22:36:01 GMT; secure
+Set-Cookie: mdr_browser=desktop; expires=Thu, 27-Oct-2016 00:36:02 GMT; path=/; domain=.airbnb.co.uk
+Strict-Transport-Security: max-age=10886400; includeSubdomains
+Vary: Accept-Encoding
+Server: nginx/1.7.12
+Etag: W/"31667235a47b70599874502bf17c5ea9"
+X-Ua-Compatible: IE=Edge,chrome=1
+Cache-Control: max-age=0, private, must-revalidate
+Date: Wed, 26 Oct 2016 22:36:02 GMT
+X-Frame-Options: SAMEORIGIN
+Content-Type: text/html; charset=utf-8

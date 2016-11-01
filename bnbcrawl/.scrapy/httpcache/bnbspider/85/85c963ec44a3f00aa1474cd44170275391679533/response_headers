@@ -1,0 +1,19 @@
+Status: 200 OK
+X-Xss-Protection: 1; mode=block
+Content-Security-Policy: default-src 'self' https:; connect-src 'self' https: ws://localhost.airbnb.com:8888 *.mapbox.com *.inspectlet.com wss://ws.inspectlet.com http:; font-src 'self' data: *.muscache.com fonts.gstatic.com use.typekit.net; frame-src *; img-src 'self' https: *.mapbox.com *.inspectlet.com http: data:; media-src 'self' https:; object-src 'self' https:; script-src 'sha256-2S1zmL0hHGfsnw+rP+m+rBKOma7sejqhykg8DdWFKfU=' 'self' https: 'unsafe-eval' 'unsafe-inline' *.mapbox.com *.inspectlet.com http:; style-src 'self' https: 'unsafe-inline' *.mapbox.com http:; report-uri /tracking/csp?action=index&controller=search&req_uuid=25fbe559-b001-4efc-b9e7-dacf94a04a28&version=6cbc577308d3a9caf7becc72fe0cf2047edb5b45;
+X-Content-Type-Options: nosniff
+Content-Encoding: gzip
+Set-Cookie: bev=1477521319_aOoGu4wdxR11EqLq; domain=.airbnb.co.uk; path=/; expires=Fri, 26-Oct-2018 22:35:19 GMT; secure
+Set-Cookie: _csrf_token=V4%24.airbnb.co.uk%24PEFPI9B4nF4%24lSaLYhGhSgQpwULAcp9ukLwnLjxGR4np-YuxqxyZpF4%3D; domain=.airbnb.co.uk; path=/; secure
+Set-Cookie: _user_attributes=%7B%22curr%22%3A%22GBP%22%2C%22guest_exchange%22%3A0.81952%2C%22device_profiling_session_id%22%3A%221477521320--7b78a23041c6bc89b81904f0%22%2C%22giftcard_profiling_session_id%22%3A%221477521320--8d7a400300aef7b0cd1099cb%22%7D; domain=.airbnb.co.uk; path=/; secure
+Set-Cookie: flags=268435456; domain=.airbnb.co.uk; path=/; secure
+Set-Cookie: p1_new=control; expires=Sun, 25-Dec-2016 22:35:20 GMT; domain=.airbnb.co.uk
+Strict-Transport-Security: max-age=10886400; includeSubdomains
+Vary: Accept-Encoding
+Server: nginx/1.7.12
+Etag: W/"eb7ae94df4d4ab80ecfc41a4b73761b1"
+X-Ua-Compatible: IE=Edge,chrome=1
+Cache-Control: max-age=0, private, must-revalidate
+Date: Wed, 26 Oct 2016 22:35:20 GMT
+X-Frame-Options: SAMEORIGIN
+Content-Type: text/html; charset=utf-8
