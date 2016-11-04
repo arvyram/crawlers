@@ -40,22 +40,25 @@ class FacebookVidSpider(scrapy.Spider):
                 print video_log
                 loc_time = time.time()
                 f_name = video_log + '/' + 'post_bcast.csv'
+
                 if not os.path.isfile(f_name):
                     vid_dat = pd.read_csv(video_log+'/'+'view_data.csv')
                     server_time = vid_dat['server_time'].max()
+                    min_t = vid_dat['server_time'].min()
                 else:
                     # f_name = video_log +  '/view_data.csv'
                     vid_dat = pd.read_csv(f_name)
-                    server_time = vid_dat['page_gen_time'].astype('int64').max()  
+                    server_time = vid_dat['page_gen_time'].astype('int64').max() 
+                    min_t = vid_dat['page_gen_time'].astype('int64').min() 
 
-                if  loc_time - server_time >= 900:
+                if  (loc_time - server_time >= 900) and (loc_time - min_t <= 2592000):
                     vid_page_url =  construct_vid_pg_request(vid_dat.video_link.unique()[0])
                     yield scrapy.Request( vid_page_url, meta={'vid_page_url': vid_page_url,'save_dir': video_log}, callback = self.pull_video_data )
                 else:
                     continue
 
-            while (time.time() - st_time) <= 1200:
-                time.sleep(3)
+            # while (time.time() - st_time) <= 1800 :
+            #     time.sleep(3)
 
 
 

@@ -34,7 +34,7 @@ class Vars:
         '__a': 1,
         '__dyn': '7xeXxaAcg42S5o9EdpbGEW8xdLFwgoqwXCwAxu13wIwHx27RyUrxuE98KaxeUW2y5pQ12VVojxC4oXUCu58nyokz8boaofoO6Egx61YCBxOA589o84ifmezEW',
         '__af':'o',
-        '__rev':2654378,
+        '__rev':2664624,
         '__pc':pc,
         '__srp_t': time.strftime('%s'),
         '__req':random.choice(req_ids),
@@ -311,7 +311,7 @@ class FacebookSpider(scrapy.Spider):
             resp_dict['share_count'] = d_1['sharecount']
             resp_dict['is_live_vod'] = d_1['isLiveVOD']
             resp_dict['lid'] = d_1['lid']
-            resp_dict['location'] = d_1['location']
+            resp_dict['location'] = d_1.get('location')
             resp_dict['video_link'] = d_1['permalink']
             resp_dict['owner_id'] = d_1['ownerid']
             resp_dict['owner_name'] = d_1['ownerName']
