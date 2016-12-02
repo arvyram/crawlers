@@ -7,15 +7,27 @@ import os
 from fblivecrawl.items import Video_stream
 import pandas as pd
 import itertools
-import codecs
+import codecs, gzip
 from fblivecrawl.settings import LOG_FOLDER #DONT FORGET THE END /
 
 from scrapy.selector import Selector
+from utils import Utils as ut
+
 
 lower_a = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 num = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 
 req_ids = [''.join(i) for i in itertools.product(lower_a,  num + lower_a)]
+
+def compress_utf8_file(fullpath, delete_original = True):
+    """Compress a UTF-8 encoded file using GZIP compression named *.gz. If `delete_original` is `True` [default: True],
+    the original file specified by `delete_original` is removed after compression."""
+    with codecs.open(fullpath, 'r', 'utf-8') as fin:
+        with gzip.open(fullpath + '.gz', 'wb') as fout:
+            for line in fin:
+                fout.write(unicode(line).encode('utf-8'))
+    if delete_original:
+	os.remove(fullpath)
 
 
 class Vars:
@@ -57,11 +69,10 @@ class FacebookSpider(scrapy.Spider):
 
     name = "fbspider"
     allowed_domains = ["facebook.com"]
-    folder_path = LOG_FOLDER #+ time.strftime('%d-%b-%Y_%w')
+    folder_path = LOG_FOLDER + 'video_logs/' #+ time.strftime('%d-%b-%Y_%w')
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
-    
-    
+  
 
     def __init__(self, level=0, *args, **kwargs):
         super(FacebookSpider, self).__init__(*args, **kwargs)
@@ -102,16 +113,19 @@ class FacebookSpider(scrapy.Spider):
             stream['u_profile'] = p_stream['url']
             stream['lid'] = lid
             
-            self.save_at = FacebookSpider.folder_path + '/' + str(level) +'/'+ stream[ 'video_id' ] + '/'
+            self.save_at = FacebookSpider.folder_path +'/'+ stream[ 'video_id' ] + '/'
             if not os.path.exists(self.save_at):
                 os.makedirs(self.save_at)
-
+            with open(FacebookSpider.folder_path +'/' + "video_ids.txt", "a") as myfile:
+                 myfile.write(stream[ 'video_id' ] + '\n')
             init_data = self.save_at + "vid_data.csv"
             if not os.path.isfile( init_data):
                 pd.DataFrame([stream]).to_csv( init_data, encoding ='utf-8')
             else:
-                pd.DataFrame([stream]).to_csv( init_data, encoding ='utf-8', mode='a', header=False )
-            
+                if not len(pd.read_csv(init_data).columns) <=4:
+                    pd.DataFrame([stream]).to_csv( init_data, encoding ='utf-8', mode='a', header=False )
+                else:
+                    pd.DataFrame([stream]).to_csv( init_data, encoding ='utf-8', mode='a' )
 
             vid_id = stream[ 'video_id' ]
 
@@ -133,7 +147,7 @@ class FacebookSpider(scrapy.Spider):
 
             view_detail = self.construct_detail_request(vid_id)
             view_data_file = self.save_at + "view_data.csv"
-            self.vd_dir = self.save_at + 'video_views/'
+            #self.vd_dir = self.save_at + 'video_views/'
             yield scrapy.Request( view_detail,  
                 meta={'append_to': view_data_file,
                      'saved_dir': self.save_at}, 
@@ -150,7 +164,7 @@ class FacebookSpider(scrapy.Spider):
         resp_text = response.text
         with codecs.open(dump_file, 'w', "utf-8") as f:
             f.write(resp_text)
-
+        compress_utf8_file(dump_file)
 
     def save_interaction(self, response):        
         saved_dir = response.meta['saved_dir']
@@ -162,7 +176,7 @@ class FacebookSpider(scrapy.Spider):
         resp_text = response.text
         with codecs.open(dump_file, 'w', "utf-8") as f:
             f.write(resp_text)
-
+        compress_utf8_file(dump_file)
         f_name = response.meta['append_to']
 
         resp_dict = self.get_parsed_interaction_dict(resp_text)
@@ -179,9 +193,10 @@ class FacebookSpider(scrapy.Spider):
             os.makedirs(dump_dir)
         dump_file = dump_dir + '/' +  str(time.time())  + '.txt'
         resp_text = response.text
+        #print resp_text
         with codecs.open(dump_file, 'w', "utf-8") as f:
             f.write(resp_text)
-
+        compress_utf8_file(dump_file)
         f_name = response.meta['append_to']
 
         resp_dict = self.get_parsed_view_dat_dict(resp_text)
@@ -235,23 +250,23 @@ class FacebookSpider(scrapy.Spider):
     def construct_detail_request(self, vid_id):
         # https://www.facebook.com/video/channel/view/details/async/642322782643764/?caller=live_map&dpr=1&__user=0&__a=1&__dyn=7xeXxaAcg42S5o9FEbFbGEW8xdLFwgoqwXCwAxu13wIwHx27RyUrxuE98KaxeUW2y5pQ12VVojxCaxnUCu58nyp8-cwJwFwZADxG48hwv9FosF1i2m214zRzEWew&__af=o&__req=5c&__be=-1&__pc=EXP1%3ADEFAULT&__rev=2654373&__srp_t=1477928354
 
-        req_str = "https://www.facebook.com/video/channel/view/details/async/" + str(vid_id) +'/' + "?"
+        req_str = "https://www.facebook.com/" + str(vid_id) +'/' 
 
 
-        params = {'caller': 'live_map',
-                    'dpr': 1,
-                '__user': 0,
-                '__a': 1,
-                '__be':-1,
-                '__dyn': '7xeXxaAcg42S5o9EdpbGEW8xdLFwgoqwXCwAxu13wIwHx27RyUrxuE98KaxeUW2y5pQ12VVojxC4oXUCu58nyokz8boaofoO6Egx61YCBxOA589o84ifmezEW',
-                '__af':'o',
-                '__rev':2654378,
-                '__pc':Vars.pc,
-                '__srp_t': time.strftime('%s'),
-                '__req':random.choice(req_ids),
-        }
+        #params = {#'caller': 'live_map',
+#                    'dpr': 1,
+ #               '__user': 0,
+  #              '__a': 1,
+   #             '__be':-1,
+    #            '__dyn': '7xeXxaAcg42S5o9EdpbGEW8xdLFwgoqwXCwAxu13wIwHx27RyUrxuE98KaxeUW2y5pQ12VVojxC4oXUCu58nyokz8boaofoO6Egx61YCBxOA589o84ifmezEW',
+     #           '__af':'o',
+      #          '__rev':2654378,
+       #         '__pc':Vars.pc,
+         #       '__srp_t': time.strftime('%s'),
+        #        '__req':random.choice(req_ids),
+       # }
 
-        return req_str + urllib.urlencode( params)
+        return req_str #+ urllib.urlencode( params)
 
 
     def get_parsed_interaction_dict(self,resp_text):
@@ -292,30 +307,38 @@ class FacebookSpider(scrapy.Spider):
 
     def get_parsed_view_dat_dict(self,resp_text):
         resp_dict = {}
-        resp_dict['r_time'] = time.time()
-        if resp_text.startswith('for'):
-            resp_json = json.loads(resp_text[9:])
+       # resp_dict['r_time'] = time.time()
+        keys = ['source','fluentContentToken','isPage','islivestreaming','commentcount', 'likecount',
+            'sharecount','isLiveVOD','videoid' ,'location','permalink','ownerid', 'ownerName', 'servertime']
+        if not 'This content is no longer available' in resp_text:
+            #resp = json.loads(resp_text[9:])
             keys = ['source','fluentContentToken','isPage','islivestreaming','commentcount', 'likecount',
             'sharecount','isLiveVOD','lid' ,'location','permalink','ownerid', 'ownerName', 'servertime']
-    
-            d_1 = self.deep_search(keys, resp_json)
-            resp_dict['source'] = d_1['source']
-            resp_dict['post_id'] = d_1['fluentContentToken']
+            #scripts = [i for i in response.xpath('//script/text()').extract()]
+            #resp_json = resp_text
+            #print resp_json  
+            d_1 = ut.str_to_dict(resp_text)#self.deep_search(keys, resp_json)
+            #print d_1
+            resp_dict['source'] = d_1.get('source', '-1')
+            resp_dict['post_id'] = d_1.get('fluentContentToken', '-1')
             # resp_dict['profile_link'] = s.xpath('//abbr/parent::a/@href').extract()[0]
             # resp_dict['profile_name'] = s.xpath('//span[@class="profileLink"]/text()').extract()[0]
             # resp_dict['post_time'] = s.xpath('//abbr[@class="timestamp"]/@data-utime').extract()[0]
-            resp_dict['is_page'] = d_1['isPage']
-            resp_dict['is_live_streaming'] =  d_1['islivestreaming']
-            resp_dict['comment_count'] = d_1['commentcount']
-            resp_dict['like_count'] = d_1['likecount']
-            resp_dict['share_count'] = d_1['sharecount']
+            resp_dict['is_page'] = d_1.get('isPage', -1)
+            resp_dict['is_live_streaming'] =  d_1.get('islivestreaming', '-1')
+            resp_dict['comment_count'] = d_1.get('commentcount', -1)
+            resp_dict['like_count'] = d_1.get('likecount', -1)
+            resp_dict['share_count'] = d_1.get('sharecount', -1)
             resp_dict['is_live_vod'] = d_1['isLiveVOD']
-            resp_dict['lid'] = d_1['lid']
+            resp_dict['videoid'] = d_1['video_id']
             resp_dict['location'] = d_1.get('location')
             resp_dict['video_link'] = d_1['permalink']
             resp_dict['owner_id'] = d_1['ownerid']
             resp_dict['owner_name'] = d_1['ownerName']
             resp_dict['server_time'] = d_1['servertime']
+        else:
+            resp_dict = dict(zip(keys, [-1] * len(keys)))
+        resp_dict['r_time'] = time.time()
         return resp_dict
 
 

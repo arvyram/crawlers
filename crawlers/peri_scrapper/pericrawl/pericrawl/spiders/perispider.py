@@ -19,6 +19,16 @@ ad_bcast_url = Template('https://api.periscope.tv/api/v2/accessVideoPublic?broad
 def gen_random(n):
     return ''.join(random.sample(map(chr, range(48, 57) + range(65, 90) + range(97, 122)), n))
 
+def compress_utf8_file(fullpath, delete_original = True):
+    """Compress a UTF-8 encoded file using GZIP compression named *.gz. If `delete_original` is `True` [default: True],
+    the original file specified by `delete_original` is removed after compression."""
+    with codecs.open(fullpath, 'r', 'utf-8') as fin:
+        with gzip.open(fullpath + '.gz', 'wb') as fout:
+            for line in fin:
+                fout.write(unicode(line).encode('utf-8'))
+    if delete_original:
+	os.remove(fullpath)
+
 
 def compress_n_save(f_name, content):
     # fgz = cStringIO.StringIO()
@@ -30,6 +40,8 @@ def compress_n_save(f_name, content):
     # f.close()
     with codecs.open(f_name, 'w', "utf-8") as f:
         f.write(content)
+    
+    compress_utf8_file(f_name)
 
 def ensure_dir(path):
     if not os.path.exists(path):
