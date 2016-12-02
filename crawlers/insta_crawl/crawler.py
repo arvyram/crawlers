@@ -183,14 +183,17 @@ class Post:
         return requests.get(url, headers = q_header, params = params)
 
 
+
 ## input params ## 
 u_name = 'jackie'
 dest_folder = './insta_crawl_data/' + u_name
-uf_count=10 #'default'
-post_count = 'default' #0 for all the posts
-node_dwld_enabled = True
+uf_count = 10 #'default' ; no of users searched from the query
+post_count = 100 #'default'; 0 to pull posts; 10% to pull recent 10% of videos
 vid_dwld_enabled = True 
-d_c = 12
+d_c = 12 # pagination; max = 128
+
+if type(post_count) == str and '%' in post_count:
+    thresh_posts = 12 #min videos to fetch
 
 ##################
 
@@ -214,13 +217,18 @@ if searched_users:
             sessionid = user_init_resp.cookies['sessionid']
             mid = user_init_resp.cookies['mid']
             if not post_count == 'default':
-                
+                if type(post_count) == str and '%' in post_count:
+                    post_count = int(post_count.split('%')[0].strip())
+                    if post_count < thresh_posts:
+                        post_count = thresh_posts
+
                 media_data = user_init_data['user']['media']
+                
                 if post_count > int(media_data['count']) or post_count==0:
                     post_count = media_data['count']
 
                 post_counts = [d_c] * int(math.ceil(post_count*1.0/d_c))
-                print post_counts
+
                 user_id = user_init_data['user']['id']
                 media_after = media_data['page_info']['end_cursor']
                 has_next = media_data['page_info']['has_next_page']
