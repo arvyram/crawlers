@@ -88,3 +88,6 @@ ENV/
 # Rope project settings
 .ropeproject
 .scrapy/
+bnbcrawl/London.json
+bnbcrawl/temp.json
+bnbcrawl/bnbcrawl/spiders/bnbspider.pyc

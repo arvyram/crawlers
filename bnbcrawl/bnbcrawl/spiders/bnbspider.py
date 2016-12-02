@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import scrapy
 import json
-from bnbcrawl.items import BnbcrawlItem
+from bnbcrawl.items import BnbcrawlItem , listingsCrawlItem
 
 
 QUERY = 'London--UK'
@@ -60,7 +60,8 @@ class BnbspiderSpider(scrapy.Spider):
             item['nightly_price'] = airbnb_json_all['nightly_price']
         item['url'] = response.url
         yield item
-
+        if response.url:
+            scrapy.Request(url, callback, meta, encoding, priority, dont_filter, errback)
 
     def last_pagenumer_in_search(self, response):
         try:  # to get the last page number
@@ -83,5 +84,8 @@ class BnbspiderSpider(scrapy.Spider):
             # has results but that there is only one page.
                 return 1
 
+    def parse_room_listing(self , response):
+        item =listingsCrawlItem()
+        json_array = response.xpath('//meta[@id=""]/@content').extract()
 
 

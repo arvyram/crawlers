@@ -30,3 +30,8 @@ class BnbcrawlItem(scrapy.Item):
     response_rate  = scrapy.Field()
     nightly_price = scrapy.Field()
     url = scrapy.Field()
+
+
+class listingsCrawlItem(scrapy.Item):
+    # define the fields for your item here like:
+    listing = scrapy.Field()
