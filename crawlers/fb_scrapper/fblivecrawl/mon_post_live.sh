@@ -1,5 +1,3 @@
-while true
-do
-	scrapy crawl fbvidspider -a level=${1}
-	sleep 2
-done
+d=$1
+scrapy crawl fbvidspider -a fold=${d}
+  

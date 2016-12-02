@@ -10,13 +10,18 @@
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 
 import time
+import os
 
 BOT_NAME = 'fblivecrawl'
 
 SPIDER_MODULES = ['fblivecrawl.spiders']
 NEWSPIDER_MODULE = 'fblivecrawl.spiders'
 
-LOG_FOLDER = '/home/aimo-1/aravindh/fb_logs/' 
+LOG_FOLDER = '/datasets_crawl/bcast_crawls/fblive_logs/' + time.strftime('%d-%h-%y') + '/' 
+
+#if not os.path.exists(LOG_FOLDER):
+#    os.makedirs(LOG_FOLDER)
+
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36'
@@ -25,7 +30,7 @@ USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Ge
 ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-CONCURRENT_REQUESTS = 20
+CONCURRENT_REQUESTS = 16
 
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
@@ -97,8 +102,8 @@ DEFAULT_REQUEST_HEADERS = {
 # Enable and configure HTTP caching (disabled by default)
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html#httpcache-middleware-settings
 
-
-
+DOWNLOAD_TIMEOUT = 2500
+DOWNLOAD_MAXSIZE = 0
 HTTPCACHE_ENABLED = False
 HTTPCACHE_EXPIRATION_SECS = 0
 HTTPCACHE_DIR = LOG_FOLDER +'/httpcache/'
@@ -108,4 +113,4 @@ HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 LOG_LEVEL = 'ERROR'
 
 LOG_STDOUT = True
-LOG_FILE = LOG_FOLDER+'/scrapy_info.txt'
+LOG_FILE = LOG_FOLDER + 'scrapy_info.txt'
