@@ -17,14 +17,14 @@ class Utils:
             with gzip.open(fullpath  +'.gz', 'wb') as fout:
                 for line in fin:
                     fout.write(unicode(line).encode('utf-8'))
-        
+
         if delete_original:
             os.remove(fullpath)
-    @classmethod 
+    @classmethod
     def download_video(cls, url, f_name):
         r = requests.get(url, stream = True)
         with open(f_name, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=1024): 
+            for chunk in r.iter_content(chunk_size=1024):
                 if chunk: # filter out keep-alive new chunks
                     f.write(chunk)
         return f_name
@@ -125,7 +125,7 @@ class User:
                               }" % ( user_id, media_after, count),
                           "ref":"users::show",
                           "query_id": query_id
-                    } 
+                    }
         query_id = str(int(query_id) + 10)
         open('query_id.txt', 'w').write(query_id)
 
@@ -159,7 +159,7 @@ class User:
 class Post:
     def get_post( self, post_id, username, csrf_token, sessionid, mid ):
         url = 'https://www.instagram.com/p/%s/' % post_id
-        params = { 
+        params = {
             'taken-by' : username,
             '__a' : 1
         }
@@ -184,12 +184,12 @@ class Post:
 
 
 
-## input params ## 
+## input params ##
 u_name = 'jackie'
 dest_folder = './insta_crawl_data/' + u_name
 uf_count = 10 #'default' ; no of users searched from the query
 post_count = 100 #'default'; 0 to pull posts; 10% to pull recent 10% of videos
-vid_dwld_enabled = True 
+vid_dwld_enabled = True
 d_c = 12 # pagination; max = 128
 
 if type(post_count) == str and '%' in post_count:
@@ -198,7 +198,7 @@ if type(post_count) == str and '%' in post_count:
 ##################
 
 
-u = User() 
+u = User()
 user_search_resp = u.search_user(u_name, uf_count=uf_count)
 searched_users = u.parse_and_save(user_search_resp.text, dest_folder)
 if searched_users:
@@ -217,13 +217,15 @@ if searched_users:
             sessionid = user_init_resp.cookies['sessionid']
             mid = user_init_resp.cookies['mid']
             if not post_count == 'default':
+                media_data = user_init_data['user']['media']
                 if type(post_count) == str and '%' in post_count:
                     post_count = int(post_count.split('%')[0].strip())
+                    post_count = math.ceil(int(media_data['count'])   * (post_count) /100.0)
                     if post_count < thresh_posts:
                         post_count = thresh_posts
 
-                media_data = user_init_data['user']['media']
-                
+
+
                 if post_count > int(media_data['count']) or post_count==0:
                     post_count = media_data['count']
 
@@ -259,7 +261,7 @@ if searched_users:
                     json.dump(pst_json, outfile)
                 Utils.compress_utf8_file(p_file)
                 if vid_dwld_enabled:
-                   
+
                     if pst_json['media']['is_video']:
                         vid_link = pst_json['media']['video_url']
                         v_file = p_folder +'/' + vid_link.split('/')[-1]
