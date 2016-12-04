@@ -233,7 +233,7 @@ def crawlUser(uname, destfolder , uSearchCount = 20 , postcount = 100, vidDownlo
     u = User()
     user_search_resp = u.search_user(u_name, uf_count=uf_count)
     csrf_token = user_search_resp.cookies['csrftoken']
-    sessionid = user_search_resp.cookies['sessionid']
+    sessionid = user_search_resp.cookies.get('sessionid', 'IGSC4223b2b8644525009fb8cfc471a98aa4b617ed3b5ac454d7a8984c54e328111b:bwUyjueLkfYDqz5ANaDtP6r8byCtUn1g:{"asns":{%s:786,"time":%s}};;' % (public_ip, time.strftime('%s')) )
     searched_users = u.parse_and_save(user_search_resp.text, dest_folder)
     if searched_users:
         for user_data in searched_users:
@@ -316,6 +316,9 @@ def crawlUser(uname, destfolder , uSearchCount = 20 , postcount = 100, vidDownlo
 if __name__ == '__main__':
     userFile = sys.argv[1]
     destFolder = sys.argv[2]
+    ip = requests.get('http://httpbin.org/ip')
+    public_ip = json.loads(ip.text)['origin']
+
     if os.path.exists(userFile) and os.path.exists(destFolder):
         f = open(userFile, 'rb' )
         names = f.readlines()
