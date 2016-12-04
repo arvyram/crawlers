@@ -4,6 +4,7 @@ import random
 import os, time
 import codecs, gzip, math
 import sys
+import cPickle as pickle
 
 
 class Utils:
@@ -24,6 +25,16 @@ class Utils:
     @classmethod
     def download_video(cls, url, f_name):
         r = requests.get(url, stream = True)
+        print "Saving to file %s" %f_name
+        with open(f_name, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=1024):
+                if chunk: # filter out keep-alive new chunks
+                    f.write(chunk)
+        return f_name
+    @classmethod
+    def download_img(cls, url, f_name):
+        r = requests.get(url, stream = True)
+        print "Saving to file %s" %f_name
         with open(f_name, 'wb') as f:
             for chunk in r.iter_content(chunk_size=1024):
                 if chunk: # filter out keep-alive new chunks
@@ -32,6 +43,26 @@ class Utils:
 
 
 class User:
+    userDownloadCache = "InstaUsersCache.pk"
+    userRecords = os.getcwd() + "/" + userDownloadCache
+    print "Saving userRecords at %s" %userRecords
+
+    def getUserList(self):
+        visited = []
+        try:
+            f = open(self.userRecords, 'rb')
+            visited = pickle.load(f)
+            f.close()
+        except (EOFError, IOError) as e:
+            f = open(self.userRecords,"a+")
+            pickle.dump([],f)
+            f.close()
+        return visited
+
+    def updateUserList(self, listOfUsers):
+        with open(self.userRecords, 'wb') as f:
+            pickle.dump(listOfUsers, f)
+
     def search_user(self, u_name, uf_count='default'):
         url = "https://www.instagram.com/web/search/topsearch/"
         params = {}
@@ -183,7 +214,7 @@ class Post:
 
         return requests.get(url, headers = q_header, params = params)
 
-def crawlUser(uname, destfolder , uSearchCount = 10 , postcount = 100, vidDownloadFlag = True , chunkSize=12):
+def crawlUser(uname, destfolder , uSearchCount = 20 , postcount = 100, vidDownloadFlag = True , chunkSize=12):
 
     ## input params ##
     u_name = uname
@@ -206,14 +237,25 @@ def crawlUser(uname, destfolder , uSearchCount = 10 , postcount = 100, vidDownlo
     searched_users = u.parse_and_save(user_search_resp.text, dest_folder)
     if searched_users:
         for user_data in searched_users:
+
             u_folder = u.store_user_data( dest_folder, user_data )
+            print "Storing is User folder : %s" %u_folder
             u_data = user_data['user']
             if not u_data['is_private']:
 
                 username =  u_data['username']
+                print "Crawling %s as a part of Username %s searched" %(username , u_name)
                 user_init_resp = u.get_user_init_data(username, csrf_token, sessionid )
 
                 user_init_data = json.loads(user_init_resp.text)
+                crawledUsers = u.getUserList()
+                user_id = user_init_data['user']['id']
+                if user_id in crawledUsers:
+                    print "The User has been crawled before"
+                    break
+                else:
+                    crawledUsers.append(user_id)
+                    u.updateUserList(crawledUsers)
 
                 csrf_token = user_init_resp.cookies.get('csrftoken', csrf_token)
 
@@ -233,8 +275,6 @@ def crawlUser(uname, destfolder , uSearchCount = 10 , postcount = 100, vidDownlo
                         post_count = media_data['count']
 
                     post_counts = [d_c] * int(math.ceil(post_count*1.0/d_c))
-
-                    user_id = user_init_data['user']['id']
                     media_after = media_data['page_info']['end_cursor']
                     has_next = media_data['page_info']['has_next_page']
                     for pg_cnt, post_count in enumerate(post_counts):
@@ -249,9 +289,6 @@ def crawlUser(uname, destfolder , uSearchCount = 10 , postcount = 100, vidDownlo
                             time.sleep(0.1)
                 user_full_data = user_init_data
                 u.store_user_full_data(u_folder, user_full_data)
-
-
-
                 ########crawl each node#####################
                 post = Post()
                 for node in user_full_data['user']['media']['nodes']:
@@ -265,10 +302,15 @@ def crawlUser(uname, destfolder , uSearchCount = 10 , postcount = 100, vidDownlo
                     Utils.compress_utf8_file(p_file)
                     if vid_dwld_enabled:
 
+
                         if pst_json['media']['is_video']:
-                            vid_link = pst_json['media']['video_url']
-                            v_file = p_folder +'/' + vid_link.split('/')[-1]
-                            Utils.download_video (vid_link, v_file )
+                            link = pst_json['media']['video_url']
+                            v_file = p_folder +'/' + link.split('/')[-1]
+                            Utils.download_video (link, v_file )
+                        else:
+                            link = pst_json['media']['display_src']
+                            v_file = p_folder +'/' + link.split('/')[-1].split('?')[0]
+                            Utils.download_video (link, v_file )
 
 
 if __name__ == '__main__':
@@ -278,6 +320,6 @@ if __name__ == '__main__':
         f = open(userFile, 'rb' )
         names = f.readlines()
         for name in names:
-            crawlUser(name.strip() , destFolder )
+            crawlUser(name.strip() , destFolder  )
 
 
