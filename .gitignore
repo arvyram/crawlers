@@ -88,3 +88,5 @@ ENV/
 # Rope project settings
 .ropeproject
 insta_crawl_data
+InstaUsersCache.pk
+sortedCrawl
