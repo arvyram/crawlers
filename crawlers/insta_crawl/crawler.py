@@ -23,16 +23,7 @@ class Utils:
         if delete_original:
             os.remove(fullpath)
     @classmethod
-    def download_video(cls, url, f_name):
-        r = requests.get(url, stream = True)
-        print "Saving to file %s" %f_name
-        with open(f_name, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=1024):
-                if chunk: # filter out keep-alive new chunks
-                    f.write(chunk)
-        return f_name
-    @classmethod
-    def download_img(cls, url, f_name):
+    def download_resource(cls, url, f_name):
         r = requests.get(url, stream = True)
         print "Saving to file %s" %f_name
         with open(f_name, 'wb') as f:
@@ -233,7 +224,7 @@ def crawlUser(uname, destfolder , uSearchCount = 20 , postcount = 100, vidDownlo
     u = User()
     user_search_resp = u.search_user(u_name, uf_count=uf_count)
     csrf_token = user_search_resp.cookies['csrftoken']
-    sessionid = user_search_resp.cookies['sessionid']
+    sessionid = ""
     searched_users = u.parse_and_save(user_search_resp.text, dest_folder)
     if searched_users:
         for user_data in searched_users:
@@ -306,11 +297,11 @@ def crawlUser(uname, destfolder , uSearchCount = 20 , postcount = 100, vidDownlo
                         if pst_json['media']['is_video']:
                             link = pst_json['media']['video_url']
                             v_file = p_folder +'/' + link.split('/')[-1]
-                            Utils.download_video (link, v_file )
+                            Utils.download_resource (link, v_file )
                         else:
                             link = pst_json['media']['display_src']
                             v_file = p_folder +'/' + link.split('/')[-1].split('?')[0]
-                            Utils.download_video (link, v_file )
+                            Utils.download_resource (link, v_file )
 
 
 if __name__ == '__main__':
