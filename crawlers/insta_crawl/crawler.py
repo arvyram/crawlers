@@ -186,6 +186,7 @@ class Post:
 def crawlUser(uname, destfolder , uSearchCount = 10 , postcount = 100, vidDownloadFlag = True , chunkSize=12):
 
     ## input params ##
+    userIds_Crawled = []
     u_name = uname
     dest_folder = destfolder + "/" +  u_name
     uf_count = uSearchCount #'default' ; no of users searched from the query
@@ -235,6 +236,7 @@ def crawlUser(uname, destfolder , uSearchCount = 10 , postcount = 100, vidDownlo
                     post_counts = [d_c] * int(math.ceil(post_count*1.0/d_c))
 
                     user_id = user_init_data['user']['id']
+                    userIds_Crawled.append(user_id)
                     media_after = media_data['page_info']['end_cursor']
                     has_next = media_data['page_info']['has_next_page']
                     for pg_cnt, post_count in enumerate(post_counts):
@@ -269,6 +271,7 @@ def crawlUser(uname, destfolder , uSearchCount = 10 , postcount = 100, vidDownlo
                             vid_link = pst_json['media']['video_url']
                             v_file = p_folder +'/' + vid_link.split('/')[-1]
                             Utils.download_video (vid_link, v_file )
+    return userIds_Crawled
 
 
 if __name__ == '__main__':
@@ -278,6 +281,6 @@ if __name__ == '__main__':
         f = open(userFile, 'rb' )
         names = f.readlines()
         for name in names:
-            crawlUser(name.strip() , destFolder )
+            idsCrawled = crawlUser(name.strip() , destFolder , uSearchCount = 20 , postcount = 100, vidDownloadFlag = True , chunkSize=20)
 
 
