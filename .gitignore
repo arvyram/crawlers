@@ -90,3 +90,5 @@ ENV/
 insta_crawl_data
 InstaUsersCache.pk
 sortedCrawl
+,out
+nohup.out
