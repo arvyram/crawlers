@@ -282,7 +282,7 @@ def crawlUser(uname, destfolder , uSearchCount = 20 , postcount = 100, vidDownlo
                             media_after = addl_med_data['page_info']['end_cursor']
                             has_next = addl_med_data['page_info']['has_next_page']
                             user_init_data['user']['media']['page_info' + '_' + str(pg_cnt+1)] = addl_med_data['page_info']
-                            time.sleep(0.1)
+                            time.sleep(1)
                 user_full_data = user_init_data
                 u.store_user_full_data(u_folder, user_full_data)
                 ########crawl each node#####################
