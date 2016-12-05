@@ -1,4 +1,4 @@
-import json
+import simplejson as json
 import random
 import os, time
 import codecs, gzip, math
