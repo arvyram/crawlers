@@ -12,14 +12,15 @@ class InstaSession(Session):
         retries = 5
         tried = 0
         failed = True
-        sleep_time = 5
+        sleep_time = 1
         response = None
-        while failed and tried < retries: 
-            try:    
+        while failed and tried < retries:
+            try:
                 response = super(InstaSession, self).request(method, url, **kwargs)
                 failed = False
             except:
                 failed = True
+                tried+=1
                 time.sleep(sleep_time)
         return response
 
@@ -266,11 +267,11 @@ def crawlUser(uname, destfolder , uSearchCount = 20 , postcount = 100, vidDownlo
                 else:
                     crawledUsers.append(user_id)
                     u.updateUserList(crawledUsers)
-                
+
                 csrf_token = user_init_resp.cookies.get('csrftoken', csrf_token)
 
                 sessionid = user_init_resp.cookies.get('sessionid', sessionid)
-                mid = user_init_resp.cookies.get('mid')
+                mid = user_init_resp.cookies.get('mid',mid)
                 if not post_count == 'default':
                     media_data = user_init_data['user']['media']
                     if type(post_count) == str and '%' in post_count:
@@ -296,7 +297,6 @@ def crawlUser(uname, destfolder , uSearchCount = 20 , postcount = 100, vidDownlo
                             media_after = addl_med_data['page_info']['end_cursor']
                             has_next = addl_med_data['page_info']['has_next_page']
                             user_init_data['user']['media']['page_info' + '_' + str(pg_cnt+1)] = addl_med_data['page_info']
-                            time.sleep(1)
                 user_full_data = user_init_data
                 u.store_user_full_data(u_folder, user_full_data)
                 ########crawl each node#####################
@@ -335,5 +335,5 @@ if __name__ == '__main__':
         session = InstaSession()
         for name in names:
             crawlUser(name.strip() , destFolder  )
-  
+
 
