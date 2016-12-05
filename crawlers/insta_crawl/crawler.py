@@ -27,9 +27,12 @@ class Utils:
         r = requests.get(url, stream = True)
         print "Saving to file %s" %f_name
         with open(f_name, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=1024):
-                if chunk: # filter out keep-alive new chunks
-                    f.write(chunk)
+            try:
+                for chunk in r.iter_content(chunk_size=1024):
+                    if chunk: # filter out keep-alive new chunks
+                        f.write(chunk)
+            except Exception as e:
+                print "Encountered Error while downloading resource: %s" %str(e)
         return f_name
 
 
