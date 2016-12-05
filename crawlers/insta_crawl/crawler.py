@@ -1,4 +1,3 @@
-import requests
 import json
 import random
 import os, time
@@ -6,6 +5,23 @@ import codecs, gzip, math
 import sys
 import cPickle as pickle
 
+from requests import Session
+
+class InstaSession(Session):
+    def request(self, method, url, **kwargs):
+        retries = 5
+        tried = 0
+        failed = True
+        sleep_time = 5
+        response = None
+        while failed and tried < retries: 
+            try:    
+                response = super(InstaSession, self).request(method, url, **kwargs)
+                failed = False
+            except:
+                failed = True
+                time.sleep(sleep_time)
+        return response
 
 class Utils:
     @classmethod
@@ -24,7 +40,7 @@ class Utils:
             os.remove(fullpath)
     @classmethod
     def download_resource(cls, url, f_name):
-        r = requests.get(url, stream = True)
+        r = session.get(url, stream = True)
         print "Saving to file %s" %f_name
         with open(f_name, 'wb') as f:
             try:
@@ -82,8 +98,7 @@ class User:
             'Cache-Control': 'no-cache'
         }
 
-        client = requests.session()
-        return client.get(url, headers = usersearch_header, params = params)
+        return session.get(url, headers = usersearch_header, params = params)
 
     def parse_and_save(self, resp_text, dest_folder):
         Utils.check_create(dest_folder)
@@ -125,7 +140,7 @@ class User:
             'Cache-Control': 'no-cache'
         }
 
-        return requests.get(url, headers = userdata_header, params = params)
+        return session.get(url, headers = userdata_header, params = params)
 
     def get_user_full_data(self, username, user_id, media_after, count, csrf_token, sessionid, mid):
         query_id = open('query_id.txt', 'r').read()
@@ -173,7 +188,7 @@ class User:
             'Cache-Control': 'no-cache'
         }
 
-        return requests.post("https://www.instagram.com/query/", data=payload, headers=q_header)
+        return session.post("https://www.instagram.com/query/", data=payload, headers=q_header)
 
     def store_user_full_data( self, u_folder, user_f_data ):
         u_file = u_folder + 'user_full_data.json'
@@ -206,7 +221,7 @@ class Post:
         }
 
 
-        return requests.get(url, headers = q_header, params = params)
+        return session.get(url, headers = q_header, params = params)
 
 def crawlUser(uname, destfolder , uSearchCount = 20 , postcount = 100, vidDownloadFlag = True , chunkSize=12):
 
@@ -228,9 +243,9 @@ def crawlUser(uname, destfolder , uSearchCount = 20 , postcount = 100, vidDownlo
     user_search_resp = u.search_user(u_name, uf_count=uf_count)
     csrf_token = user_search_resp.cookies['csrftoken']
     # sessionid = user_search_resp.cookies.get('sessionid', 'IGSC4223b2b8644525009fb8cfc471a98aa4b617ed3b5ac454d7a8984c54e328111b:bwUyjueLkfYDqz5ANaDtP6r8byCtUn1g:{"asns":{%s:786,"time":%s}};;' % (public_ip, time.strftime('%s')) )
-    sessionid = ""
-
+    sessionid = user_search_resp.cookies.get('sessionid', '')
     searched_users = u.parse_and_save(user_search_resp.text, dest_folder)
+    mid = user_search_resp.cookies.get('mid', '')
     if searched_users:
         for user_data in searched_users:
 
@@ -242,7 +257,6 @@ def crawlUser(uname, destfolder , uSearchCount = 20 , postcount = 100, vidDownlo
                 username =  u_data['username']
                 print "Crawling %s as a part of Username %s searched" %(username , u_name)
                 user_init_resp = u.get_user_init_data(username, csrf_token, sessionid )
-
                 user_init_data = json.loads(user_init_resp.text)
                 crawledUsers = u.getUserList()
                 user_id = user_init_data['user']['id']
@@ -252,11 +266,11 @@ def crawlUser(uname, destfolder , uSearchCount = 20 , postcount = 100, vidDownlo
                 else:
                     crawledUsers.append(user_id)
                     u.updateUserList(crawledUsers)
-
+                
                 csrf_token = user_init_resp.cookies.get('csrftoken', csrf_token)
 
                 sessionid = user_init_resp.cookies.get('sessionid', sessionid)
-                mid = user_init_resp.cookies['mid']
+                mid = user_init_resp.cookies.get('mid')
                 if not post_count == 'default':
                     media_data = user_init_data['user']['media']
                     if type(post_count) == str and '%' in post_count:
@@ -312,13 +326,14 @@ def crawlUser(uname, destfolder , uSearchCount = 20 , postcount = 100, vidDownlo
 if __name__ == '__main__':
     userFile = sys.argv[1]
     destFolder = sys.argv[2]
-    # ip = requests.get('http://httpbin.org/ip')
+    # ip = session.get('http://httpbin.org/ip')
     # public_ip = json.loads(ip.text)['origin']
 
     if os.path.exists(userFile) and os.path.exists(destFolder):
         f = open(userFile, 'rb' )
         names = f.readlines()
+        session = InstaSession()
         for name in names:
             crawlUser(name.strip() , destFolder  )
-
+  
 
