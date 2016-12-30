@@ -10,7 +10,7 @@ from crawler import User
 from crawler import Post
 
 dataRoot = "/datasets/sagarj/instaPop/"
-tracker = "/datasets/sagarj/instaPoptracked/"
+tracker = "/datasets/sagarj/instaPopTrackedVids"
 global_searched_data = dataRoot + "search_data.json.gz"
 
 def readGzipJSON(filePath):
@@ -55,6 +55,9 @@ def getFileList(dataRoot):
                             allUsers[s]['Posts'][post]['path'] = media_file
     return allUsers
 
+def getPrecachedPosts(trackerDir):
+    postList = os.listdir(trackerDir)
+    return postList
 
 def downloadPost(downloadDir,postCode, username , csrf_token , sessionid , mid ):
     post = Post()
@@ -65,7 +68,10 @@ def downloadPost(downloadDir,postCode, username , csrf_token , sessionid , mid )
     p_file = p_folder +'/' + 'post_full_data.json'
     with open(p_file, 'w') as outfile:
         json.dump(pst_json, outfile)
-    Utils.compress_utf8_file(p_file)
+    try:
+        Utils.compress_utf8_file(p_file)
+    except IOError:
+        print "JSON dump failed, not compressing"
     
     
 def getPosts(allUsers):
@@ -85,11 +91,17 @@ def getPosts(allUsers):
             username = allUsers[u]['Meta']['user']['username']
             print "tracking posts by %s"%u
             for p in allUsers[u]['Posts']:
-                print "Downloading recent meta for Post %s" %p
-                try:
-                    downloadPost(tracker , p , username , csrf_token, sessionid , mid)
-                except ValueError:
-                    print "Had exception in decoding JSON!!! "
+                if allUsers[u]['Posts'][p]['Meta']['media']['is_video']:
+                    print "Downloading recent meta for Post %s" %p
+                    try:
+                        downloadedPosts = getPrecachedPosts(tracker)
+                        if p in downloadedPosts:
+                            print "This post is already tracked in this folder!!"
+                            continue
+                        downloadPost(tracker , p , username , csrf_token, sessionid , mid)
+                        time.sleep(2)
+                    except ValueError:
+                        print "Had exception in decoding JSON!!! "
 
 
                 
